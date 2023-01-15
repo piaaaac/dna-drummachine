@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Triplette translation Beans</title>
+  <style>
+    body, * { margin: 0; font-size: 0; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js" integrity="sha512-WJXVjqeINVpi5XXJ2jn0BSCfp0y80IKrYh731gLRnkAS9TKc5KNt/OfLtu+fCueqdWniouJ1ubM+VI/hbo7POQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/addons/p5.sound.min.js" integrity="sha512-WzkwpdWEMAY/W8WvP9KS2/VI6zkgejR4/KTxTl4qHx0utqeyVE0JY+S1DlMuxDChC7x0oXtk/ESji6a0lP/Tdg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="lib/MidiWriterJS-master/browser/midiwriter.js"></script>
+</head>
+<body>
+<script>
+
+var dictUnits = 3; // 3 for triplettes
+var dict = {
+  "TTT": {unit: "TTT", pos: 1, note: 1, amino: "F"},
+  "TTC": {unit: "TTC", pos: 1, note: 2, amino: "F"},
+  "TTA": {unit: "TTA", pos: 1, note: 3, amino: "L"},
+  "TTG": {unit: "TTG", pos: 1, note: 4, amino: "L"},
+  "TCT": {unit: "TCT", pos: 2, note: 1, amino: "S"},
+  "TCC": {unit: "TCC", pos: 2, note: 2, amino: "S"},
+  "TCA": {unit: "TCA", pos: 2, note: 3, amino: "S"},
+  "TCG": {unit: "TCG", pos: 2, note: 4, amino: "S"},
+  "TAT": {unit: "TAT", pos: 3, note: 1, amino: "Y"},
+  "TAC": {unit: "TAC", pos: 3, note: 2, amino: "Y"},
+  "TAA": {unit: "TAA", pos: 3, note: 3, amino: "STOP"},
+  "TAG": {unit: "TAG", pos: 3, note: 4, amino: "STOP"},
+  "TGT": {unit: "TGT", pos: 4, note: 1, amino: "C"},
+  "TGC": {unit: "TGC", pos: 4, note: 2, amino: "C"},
+  "TGA": {unit: "TGA", pos: 4, note: 3, amino: "STOP"},
+  "TGG": {unit: "TGG", pos: 4, note: 4, amino: "W"},
+  "CTT": {unit: "CTT", pos: 5, note: 1, amino: "L"},
+  "CTC": {unit: "CTC", pos: 5, note: 2, amino: "L"},
+  "CTA": {unit: "CTA", pos: 5, note: 3, amino: "L"},
+  "CTG": {unit: "CTG", pos: 5, note: 4, amino: "L"},
+  "CCT": {unit: "CCT", pos: 6, note: 1, amino: "P"},
+  "CCC": {unit: "CCC", pos: 6, note: 2, amino: "P"},
+  "CCA": {unit: "CCA", pos: 6, note: 3, amino: "P"},
+  "CCG": {unit: "CCG", pos: 6, note: 4, amino: "P"},
+  "CAT": {unit: "CAT", pos: 7, note: 1, amino: "H"},
+  "CAC": {unit: "CAC", pos: 7, note: 2, amino: "H"},
+  "CAA": {unit: "CAA", pos: 7, note: 3, amino: "Q"},
+  "CAG": {unit: "CAG", pos: 7, note: 4, amino: "Q"},
+  "CGT": {unit: "CGT", pos: 8, note: 1, amino: "R"},
+  "CGC": {unit: "CGC", pos: 8, note: 2, amino: "R"},
+  "CGA": {unit: "CGA", pos: 8, note: 3, amino: "R"},
+  "CGG": {unit: "CGG", pos: 8, note: 4, amino: "R"},
+  "ATT": {unit: "ATT", pos: 9, note: 1, amino: "I"},
+  "ATC": {unit: "ATC", pos: 9, note: 2, amino: "I"},
+  "ATA": {unit: "ATA", pos: 9, note: 3, amino: "I"},
+  "ATG": {unit: "ATG", pos: 9, note: 4, amino: "M"},
+  "ACT": {unit: "ACT", pos: 10, note: 1, amino: "T"},
+  "ACC": {unit: "ACC", pos: 10, note: 2, amino: "T"},
+  "ACA": {unit: "ACA", pos: 10, note: 3, amino: "T"},
+  "ACG": {unit: "ACG", pos: 10, note: 4, amino: "T"},
+  "AAT": {unit: "AAT", pos: 11, note: 1, amino: "N"},
+  "AAC": {unit: "AAC", pos: 11, note: 2, amino: "N"},
+  "AAA": {unit: "AAA", pos: 11, note: 3, amino: "K"},
+  "AAG": {unit: "AAG", pos: 11, note: 4, amino: "K"},
+  "AGT": {unit: "AGT", pos: 12, note: 1, amino: "S"},
+  "AGC": {unit: "AGC", pos: 12, note: 2, amino: "S"},
+  "AGA": {unit: "AGA", pos: 12, note: 3, amino: "R"},
+  "AGG": {unit: "AGG", pos: 12, note: 4, amino: "R"},
+  "GTT": {unit: "GTT", pos: 13, note: 1, amino: "V"},
+  "GTC": {unit: "GTC", pos: 13, note: 2, amino: "V"},
+  "GTA": {unit: "GTA", pos: 13, note: 3, amino: "V"},
+  "GTG": {unit: "GTG", pos: 13, note: 4, amino: "V"},
+  "GCT": {unit: "GCT", pos: 14, note: 1, amino: "A"},
+  "GCC": {unit: "GCC", pos: 14, note: 2, amino: "A"},
+  "GCA": {unit: "GCA", pos: 14, note: 3, amino: "A"},
+  "GCG": {unit: "GCG", pos: 14, note: 4, amino: "A"},
+  "GAT": {unit: "GAT", pos: 15, note: 1, amino: "D"},
+  "GAC": {unit: "GAC", pos: 15, note: 2, amino: "D"},
+  "GAA": {unit: "GAA", pos: 15, note: 3, amino: "E"},
+  "GAG": {unit: "GAG", pos: 15, note: 4, amino: "E"},
+  "GGT": {unit: "GGT", pos: 16, note: 1, amino: "G"},
+  "GGC": {unit: "GGC", pos: 16, note: 2, amino: "G"},
+  "GGA": {unit: "GGA", pos: 16, note: 3, amino: "G"},
+  "GGG": {unit: "GGG", pos: 16, note: 4, amino: "G"},
+};
+
+var dictNotes = {
+  "1": "4",
+  "2": "D#4",
+  "3": "F4",
+  "4": "G4",
+};
+
+var sequence = "ACACCTTAACCCAATGTTGTCTTCTCCATTTGTTGTTCACACATACCAAAACTGGTGGAGAACCCGTGCATAATAAGCCCACCTCACCTAACACAGCAAAGTCCACATCCCATTGAGAGAAGTGCACTAAAAGCTCTAACTTAACACTTACCTCATGGACGCAACAGCTCTCTGCTCCACTGGACAATGTAGACAAAACAGCTGCGCTTGCCCCAGCCTATTCCTCGGTTCGGACTCCAATCCCCTGTGGCACACAAACAATAATGCCACATTATTGCTAAAATGCCACAATGGCACAATACCACATTCCCATGCTAACTGACCTATTCAACACCCCAAAAAAAGCCCTGACACATTCATACCCACAATGAAGGAGCAACCAACTACTTCTATACAGTTAAAATGAAGAGGCAACATACTCAAAAATTACACAATACTCATGGCCTTTTCCCACCCTGACTGTGGCCCATCACTAACTACAATGCTCACATCCTCCTGAGGAAACCAACACCCAGTAGAGGACAGACAAACAAGGTAGTGGTGACTAGTGATGCAAACCCAGTGCTGTGTAAGAGAGAAGAACAGAGAACGGAGCATTTCTAGTTACAGACAGGTCACTCTGCCAGCAATCGACCTTCCTCCACAGAGAACACACCCTCCGTACAATGAGCTCCCTCCCACACCAGTTAAGAACTAGCAGAGTTTGCAGGACTTCTGTCCCTAAACAAGAAGCCTCAACAGCACAAAACTTCTGACTATCGAACCCTTCAGGAGAGACTTAACTTTGACAGCTGCTGCTGCTCTCAAGATCTTCTTGTCCTTTGTACAGGGGCCTTTGCTCCCATACGTTGACAGCCATACAGCGATGTTGTGACACAGTCACAGAGAAGTAGTCACGACTCTCCACGGAACAACACAGTACCGGATCTGGACACGTCTGCAAAGACGAACAAAGCTGGACTGCAAACCGATTCACAAAGTGCCCAACTACACAATATGAAACATGACCTCACCTGCATACTGCCTCCTGAAGAGAAGGAACGCCTACTACACATTACACCCCCCTCAGAGAAGCGCCCCTCCACCCTAAACACTCTCATCCACATACTGGTGGCCCTCCACATGTCCCACCACATTGGGACCCATCGCTAACTAGAATGCTCACATCCTCCTCGGAAAACCACCACCACGTAGAGGAGAACACAAGGTGGAAGCAGTGACCTGTGATGCAAACCCAGTGCTGCGTACGAGAGAAGAACTGAGAACGGAGCATCTCTAGTTATGGACAGGTCATTCTGCCAGCAATCGACCTTCCCTCAGGGGAAACACACACTCCCTCCATACAATGAGATTCCTCCCATGCCAGTAAAGAACTAGCAGAGTTTACAGGACTTCTGTCCCTAAACAAGAAGCCTCAACGGCACAAATACTTCTGACTATCGAACCCTTCAGCAGAGACTTAACTTTGACAGCCGCTCCCGCTCTCAAGATCTTCTGGCCCTTTGTACACAGGCCTTCGCTCCCATACACTGATGTGACAGTCAGAGAAGTAGTCATGACCCTCCACAGAACAACGTGACACGGTACCGATCTGGACGTGTCTGCAAATACAAACAAAGCATCACTGCAAACCTACTCACAAAGCACCCAACTACACAATCTGAAACATGACCTCACCTGCATACTGCTTCCTGAAGAGAAGGCACACCTACTAAACATTACACCGCCCCGAGAGAAGCACCACCCACCCCAAACACAGTCATCCACATATTGGTGGCCCTCCCCATGTCCCAACACAACAGGGGCCCATCGCTAACTAGGATGCTCCCATCCTCCTCAGAAAACAACACCCAATAGAAAAGAAAAGGATGAAGCGGTGACCTGTGATGC";
+var seq = sequence.split("");
+
+
+// Apply translation using dictionary rules
+var translatedSequence = [];
+while (seq.length > dictUnits) {
+  var codon = seq.splice(0, dictUnits).join("");
+  var event = dict[codon];
+  translatedSequence.push(event);
+  console.log(event);
+}
+
+
+// Turn raw translation into a pattern w/ repetition
+var eventsPerMeasure = 16;
+var eventsReplaceNum = 4;
+var measures = [];
+while (translatedSequence.length > eventsPerMeasure) {
+
+  // first time
+  if (measures.length === 0) {
+    var measure = translatedSequence.splice(0, eventsPerMeasure);
+  }
+
+  // second time onwards
+  else {
+    var lastMeasure = measures[measures.length - 1];
+    var lastMeasurePart = lastMeasure.slice(eventsReplaceNum); // without 2nd parameter: till end of array
+    var measure = lastMeasurePart.concat(translatedSequence.splice(0, eventsReplaceNum));
+  }
+
+  measures.push(measure);
+}
+console.log("measures", measures);
+
+
+// var measureLength = 16;
+
+// Start with a new midi track
+const track = new MidiWriter.Track();
+track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1})); // Define an instrument (optional):
+track.setTimeSignature(4, 4);
+track.setTempo(240);
+
+// write on midi object
+measures.forEach(function (measure) {
+  const notes = [];
+  var places = [];
+  places[0] = [];
+  places[1] = [];
+  places[2] = [];
+  places[3] = [];
+  places[4] = [];
+  places[5] = [];
+  places[6] = [];
+  places[7] = [];
+  places[8] = [];
+  places[9] = [];
+  places[10] = [];
+  places[11] = [];
+  places[12] = [];
+  places[13] = [];
+  places[14] = [];
+  places[15] = [];
+  measure.forEach(function (item) {
+    var index = item.pos - 1;
+    var midiNote = dictNotes[item.note];
+    places[index].push(midiNote);
+  });
+  places.forEach(function (slotNotes) {
+    if (slotNotes.length === 0) {
+      // add empty note (vel = 0)
+      notes.push(new MidiWriter.NoteEvent({pitch: ['A0'], duration: '8', velocity: 0}));
+    } else {
+      // add notes
+      notes.push(new MidiWriter.NoteEvent({pitch: slotNotes, duration: '8'}));
+    }
+  });
+  track.addEvent(notes);
+});
+
+
+// Generate a data URI
+const write = new MidiWriter.Writer(track);
+console.log(write.dataUri());
+
+
+// via https://stackoverflow.com/a/15832662
+function downloadURI(uri, name) {
+  var link = document.createElement("a");
+  link.download = name;
+  link.href = uri;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  delete link;
+}
+
+function setup () {
+  createCanvas(windowWidth, windowHeight);
+  noStroke();
+  rectMode(CENTER);
+  textAlign(CENTER, CENTER);
+  stroke(255, 40);
+  frameRate(5);
+}
+
+function draw () {
+  background(155, 11, 200);
+  text("press enter to download midi file", width/2, height/2);
+  rect(random(width), random(height), 10, 10);
+}
+
+function keyPressed () {
+  if (keyCode === ENTER) {
+    downloadURI(write.dataUri(), "dna-seq-to-midi");
+  }
+}
+
+
+
+
+
+
+
+/*
+// P5 ------ play translated sequence
+let polySynth;
+function setup () {
+  createCanvas(windowWidth, windowHeight);
+  noStroke();
+  rectMode(CENTER);
+  stroke(255, 40);
+  frameRate(15);
+  polySynth = new p5.PolySynth();
+}
+function draw () {
+  background(random(255), random(255), random(255));
+  fill(random(255), random(255), random(255));
+  rect(random(width), random(height), random(10, 30), random(10, 30));
+
+  var event = translatedSequence[frameCount];
+  var note = dictNotes[event.note];
+  let dur = 0.5; // note duration (in seconds)
+  let time = 0; // time from now (in seconds)
+  let vel = 0.4; // velocity (volume, from 0 to 1)
+  polySynth.play(note, vel, 0, dur);
+}
+function mousePressed () {
+  if (isLooping()) { noLoop(); } 
+  else { loop(); }
+}
+*/
+
+
+</script>
+</body>
+</html>

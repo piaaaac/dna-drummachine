@@ -1,0 +1,333 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Make MIDI</title>
+  <style>
+    body, * { margin: 0; font-size: 0; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js" integrity="sha512-WJXVjqeINVpi5XXJ2jn0BSCfp0y80IKrYh731gLRnkAS9TKc5KNt/OfLtu+fCueqdWniouJ1ubM+VI/hbo7POQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="lib/MidiWriterJS-master/browser/midiwriter.js"></script>
+</head>
+<body>
+<script>
+
+
+
+var dict = {
+  "1": "C2",
+  "2": "D#2",
+  "3": "F2",
+  "4": "G2",
+};
+
+var measures = [
+  [
+    {codon: "ACA", place: "10", note: "3"},
+    {codon: "CCT", place: "6", note: "1"},
+    {codon: "TAA", place: "3", note: "3"},
+    {codon: "CCC", place: "6", note: "2"},
+    {codon: "AAT", place: "11", note: "1"},
+    {codon: "GTT", place: "13", note: "1"},
+    {codon: "GTC", place: "13", note: "2"},
+    {codon: "TTC", place: "1", note: "2"},
+    {codon: "TCC", place: "2", note: "2"},
+    {codon: "ATT", place: "9", note: "1"},
+    {codon: "TGT", place: "4", note: "1"},
+    {codon: "TCA", place: "2", note: "3"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+  ], [
+    {codon: "AAT", place: "11", note: "1"},
+    {codon: "GTT", place: "13", note: "1"},
+    {codon: "GTC", place: "13", note: "2"},
+    {codon: "TTC", place: "1", note: "2"},
+    {codon: "TCC", place: "2", note: "2"},
+    {codon: "ATT", place: "9", note: "1"},
+    {codon: "TGT", place: "4", note: "1"},
+    {codon: "TCA", place: "2", note: "3"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "CTG", place: "5", note: "4"},
+    {codon: "GTG", place: "13", note: "4"},
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AAC", place: "11", note: "2"},
+  ], [
+    {codon: "TCC", place: "2", note: "2"},
+    {codon: "ATT", place: "9", note: "1"},
+    {codon: "TGT", place: "4", note: "1"},
+    {codon: "TCA", place: "2", note: "3"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "CTG", place: "5", note: "4"},
+    {codon: "GTG", place: "13", note: "4"},
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AAC", place: "11", note: "2"},
+    {codon: "CCG", place: "6", note: "4"},
+    {codon: "TGC", place: "4", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "AGC", place: "12", note: "2"},
+  ], [
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "CTG", place: "5", note: "4"},
+    {codon: "GTG", place: "13", note: "4"},
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AAC", place: "11", note: "2"},
+    {codon: "CCG", place: "6", note: "4"},
+    {codon: "TGC", place: "4", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "AGC", place: "12", note: "2"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CCT", place: "6", note: "1"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "CTA", place: "5", note: "3"},
+  ], [
+    {codon: "CTG", place: "5", note: "4"},
+    {codon: "GTG", place: "13", note: "4"},
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AAC", place: "11", note: "2"},
+    {codon: "CCG", place: "6", note: "4"},
+    {codon: "TGC", place: "4", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "AGC", place: "12", note: "2"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CCT", place: "6", note: "1"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "ACA", place: "10", note: "3"},
+    {codon: "CAG", place: "7", note: "4"},
+    {codon: "CAA", place: "7", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+  ], [
+    {codon: "CCG", place: "6", note: "4"},
+    {codon: "TGC", place: "4", note: "2"},
+    {codon: "ATA", place: "9", note: "3"},
+    {codon: "AGC", place: "12", note: "2"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CCT", place: "6", note: "1"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "ACA", place: "10", note: "3"},
+    {codon: "CAG", place: "7", note: "4"},
+    {codon: "CAA", place: "7", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CAT", place: "7", note: "1"},
+    {codon: "CCC", place: "6", note: "2"},
+    {codon: "ATT", place: "9", note: "1"},
+  ], [
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CCT", place: "6", note: "1"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "ACA", place: "10", note: "3"},
+    {codon: "CAG", place: "7", note: "4"},
+    {codon: "CAA", place: "7", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CAT", place: "7", note: "1"},
+    {codon: "CCC", place: "6", note: "2"},
+    {codon: "ATT", place: "9", note: "1"},
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AGA", place: "12", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+    {codon: "GCA", place: "14", note: "3"},
+  ], [
+    {codon: "ACA", place: "10", note: "3"},
+    {codon: "CAG", place: "7", note: "4"},
+    {codon: "CAA", place: "7", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CAT", place: "7", note: "1"},
+    {codon: "CCC", place: "6", note: "2"},
+    {codon: "ATT", place: "9", note: "1"},
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AGA", place: "12", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+    {codon: "GCA", place: "14", note: "3"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "GCT", place: "14", note: "1"},
+    {codon: "CTA", place: "5", note: "3"},
+  ], [
+    {codon: "CCA", place: "6", note: "3"},
+    {codon: "CAT", place: "7", note: "1"},
+    {codon: "CCC", place: "6", note: "2"},
+    {codon: "ATT", place: "9", note: "1"},
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AGA", place: "12", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+    {codon: "GCA", place: "14", note: "3"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "GCT", place: "14", note: "1"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "ACT", place: "10", note: "1"},
+    {codon: "TAA", place: "3", note: "3"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "TTA", place: "1", note: "3"},
+  ], [
+    {codon: "GAG", place: "15", note: "4"},
+    {codon: "AGA", place: "12", note: "3"},
+    {codon: "AGT", place: "12", note: "1"},
+    {codon: "GCA", place: "14", note: "3"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "GCT", place: "14", note: "1"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "ACT", place: "10", note: "1"},
+    {codon: "TAA", place: "3", note: "3"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "TTA", place: "1", note: "3"},
+    {codon: "CCT", place: "6", note: "1"},
+    {codon: "CAT", place: "7", note: "1"},
+    {codon: "GGA", place: "16", note: "3"},
+    {codon: "CGC", place: "8", note: "2"},
+  ], [
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "AAA", place: "11", note: "3"},
+    {codon: "GCT", place: "14", note: "1"},
+    {codon: "CTA", place: "5", note: "3"},
+    {codon: "ACT", place: "10", note: "1"},
+    {codon: "TAA", place: "3", note: "3"},
+    {codon: "CAC", place: "7", note: "2"},
+    {codon: "TTA", place: "1", note: "3"},
+    {codon: "CCT", place: "6", note: "1"},
+    {codon: "CAT", place: "7", note: "1"},
+    {codon: "GGA", place: "16", note: "3"},
+    {codon: "CGC", place: "8", note: "2"},
+    {codon: "AAC", place: "11", note: "2"},
+    {codon: "AGC", place: "12", note: "2"},
+    {codon: "TCT", place: "2", note: "1"},
+    {codon: "CTG", place: "5", note: "4"},
+  ]
+];
+
+// Start with a new track
+const track = new MidiWriter.Track();
+// Define an instrument (optional):
+track.addEvent(new MidiWriter.ProgramChangeEvent({instrument: 1}));
+track.setTimeSignature(4, 4);
+track.setTempo(120);
+
+// Add some notes:
+// const notes = [
+//   new MidiWriter.NoteEvent({pitch: ['A0'], duration: '8', velocity: 0}),
+//   new MidiWriter.NoteEvent({pitch: ['C3', 'D3', 'E3'], duration: '8'}),
+//   new MidiWriter.NoteEvent({pitch: ['C1', 'D1', 'E1'], duration: '8'}),
+// ];
+
+
+measures.forEach(function (measure) {
+  const notes = [];
+  var places = [];
+  places[0] = [];
+  places[1] = [];
+  places[2] = [];
+  places[3] = [];
+  places[4] = [];
+  places[5] = [];
+  places[6] = [];
+  places[7] = [];
+  places[8] = [];
+  places[9] = [];
+  places[10] = [];
+  places[11] = [];
+  places[12] = [];
+  places[13] = [];
+  places[14] = [];
+  places[15] = [];
+  measure.forEach(function (item) {
+    var index = item.place - 1;
+    var midiNote = dict[item.note];
+    places[index].push(midiNote);
+    console.log(places)
+
+    /*
+    places = [
+      [],
+      [],
+      [],
+      ['D#2'],
+      ['F2'],
+      ['G2', 'F2', 'C2', 'F2', 'D#2'],
+      ['D#2', 'G2', 'F2', 'C2'],
+      [],
+      ['F2', 'C2'],
+      ['F2'],
+      [],
+      ['D#2', 'C2'],
+      [],
+      [],
+      [],
+      [],
+    ]
+    */
+
+  });
+  places.forEach(function (slot) {
+    if (slot.length === 0) {
+      // add empty note (vel = 0)
+      notes.push(new MidiWriter.NoteEvent({pitch: ['A0'], duration: '8', velocity: 0}));
+    } else {
+      // add notes
+      notes.push(new MidiWriter.NoteEvent({pitch: slot, duration: '8'}));
+    }
+  });
+  track.addEvent(notes);
+});
+
+
+// Generate a data URI
+const write = new MidiWriter.Writer(track);
+console.log(write.dataUri());
+
+
+// via https://stackoverflow.com/a/15832662
+function downloadURI(uri, name) {
+  var link = document.createElement("a");
+  link.download = name;
+  link.href = uri;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  delete link;
+}
+
+function setup () {
+  createCanvas(windowWidth, windowHeight);
+  noStroke();
+  rectMode(CENTER);
+  textAlign(CENTER, CENTER);
+  stroke(255, 40);
+  frameRate(5);
+}
+
+function draw () {
+  background(155, 11, 200);
+  text("press enter to download midi file", width/2, height/2);
+  rect(random(width), random(height), 10, 10);
+}
+
+function keyPressed () {
+  if (keyCode === ENTER) {
+    downloadURI(write.dataUri(), "dna-beans-1");
+  }
+}
+
+
+</script>
+</body>
+</html>
